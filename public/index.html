@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>AutoMobile</title>
+</head>
+
+<body>
+
+    <p>Controle basique de la voiture.</p>
+
+
+
+    <p>Nombre de pilotes actuellement : <span id="online"></span></p>
+
+    <p><span id="welcome"></span></p>
+    <p>Voiture : <span id="etat"></span></p>
+    <input type="button" value="Avancer" id="btn-avancer">
+    <input type="button" value="Reculer" id="btn-reculer">
+    <input id="number" type="number" value="1000" step="250" placeholder="temps en ms"> temps en ms</input>
+    <!-- slider direction -->
+    <br>
+    <input type="range" id="slider-direction" name="volume" min="-45" max="45" step="1" value="0">
+    <label id="angle" for="volume">Direction</label>
+
+    <!-- this link is magically provided by socket.io -->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script src="index.js"></script>
+
+</body>
+
+</html>
