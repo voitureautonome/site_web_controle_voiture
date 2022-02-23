@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.3",
+    "pi-camera-connect": "^0.3.4",
     "socket.io": "^4.4.1"
   }
 }

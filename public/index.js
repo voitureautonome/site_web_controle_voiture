@@ -47,6 +47,10 @@ async function main() {
         sliderDirection.value = angle;
         labelDirection.innerText = `Angle : ${angle} degrès`;
     });
+    const imgView = document.getElementById('play');
+    socket.on('pi-video-stream', (data, res) => {
+        imgView.src=data;
+    });
 }
 
 main();

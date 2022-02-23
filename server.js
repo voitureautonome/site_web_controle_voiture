@@ -5,6 +5,21 @@ const
 const {
     exec
 } = require("child_process");
+
+const { StreamCamera, Codec, Flip, SensorMode } = require('pi-camera-connect');
+
+const streamCamera = new StreamCamera({
+    codec: Codec.MJPEG,
+    flip: Flip.Vertical,
+    sensorMode: SensorMode.Mode6
+});
+
+
+async function cameraStartCapture() {
+    await streamCamera.startCapture();
+}
+
+
 //fonction qui lance la commaned avancer 
 function avancerVoiture(millis) {
     console.log(`avancer la voiture pendant ${millis} milli-secondes`);
@@ -94,6 +109,9 @@ function onNewWebsocketConnection(socket) {
         io.emit("etat", `La voiture oriente ses roues à ${parseInt(msg)} degrès`);
         io.emit("direction", msg);
     });
+    streamCamera.on('frame', (data) => {
+        io.emit('pi-video-stream', "data:image/jpeg;base64," + data.toString("base64"));
+    });
 }
 
 function startServer() {
@@ -106,12 +124,16 @@ function startServer() {
 
     // will fire for every new websocket connection
     io.on("connection", onNewWebsocketConnection);
-
     // important! must listen from `server`, not `app`, otherwise socket.io won't function correctly
     server.listen(SERVER_PORT, () => console.info(`Listening on port ${SERVER_PORT}.`));
 
     // will send one message per second to all its clients
     let secondsSinceServerStarted = 0;
+
+    cameraStartCapture().then(() => {
+        console.log('Camera is now capturing');
+    });
+
     setInterval(() => {
         secondsSinceServerStarted++;
         io.emit("online", onlineClients.size);
