@@ -1,41 +1,89 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="styles.css">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
     <title>AutoMobile</title>
+    <link href="css/styles.css" rel="stylesheet" />
 </head>
 
 <body>
+    <!-- Page header with logo and tagline-->
+    <header class="py-5 bg-light border-bottom mb-4">
+        <div class="container">
+            <div class="text-center my-5">
+                <h1 class="fw-bolder">Controle basique de la voiture</h1>
+                <p class="lead mb-0" id="etat"></p>
+            </div>
+        </div>
+    </header>
+    <!-- Page content-->
+    <div class="container">
+        <div class="row">
+            <!-- Blog entries-->
+            <div class="col-lg-8">
+                <!-- Featured blog post-->
+                <div class="card mb-4">
+                    <img class="card-img-top" id="play" src="" alt="..." />
+                    <div class="card-body">
+                        <h2 class="card-title">Caméra de la voiture</h2>
+                    </div>
+                </div>
+            </div>
+            <!-- Side widgets-->
+            <div class="col-lg-4">
+                <!-- Search widget-->
+                <div class="card mb-4">
+                    <div class="card-header">Deplacement</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-6 d-flex justify-content-center">
+                                <input class="btn btn-primary" type="button" value="Avancer" id="btn-avancer">
 
-    <p>Controle basique de la voiture.</p>
-
-
-
-    <p>Nombre de pilotes actuellement : <span id="online"></span></p>
-
-    <p><span id="welcome"></span></p>
-    <p>Voiture : <span id="etat"></span></p>
-    <div class="stream">
-        <img id="play" height="200em" >
+                            </div>
+                            <div class="col-sm-6 d-flex justify-content-center">
+                                <input class="btn btn-primary" type="button" value="Reculer" id="btn-reculer">
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row d-flex justify-content-center">
+                            <input id="number" type="number" value="1000" step="250" placeholder="temps en ms"> temps en ms</input>
+                        </div>
+                    </div>
+                </div>
+                <!-- Categories widget-->
+                <div class="card mb-4">
+                    <div class="card-header">Direction</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <input type="range" id="slider-direction" name="volume" min="-45" max="45" step="1" value="0">
+                        </div>
+                    </div>
+                </div>
+                <!-- Side widget-->
+                <div class="card mb-4">
+                    <div class="card-header">Nombre de pilotes actuellement</div>
+                    <div class="card-body d-flex justify-content-center">
+                        <span id="online"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="deplacement">
-        <input type="button" value="Avancer" id="btn-avancer">
-        <input type="button" value="Reculer" id="btn-reculer">
-    </div>
-    
-    <input id="number" type="number" value="1000" step="250" placeholder="temps en ms"> temps en ms</input>
-    <!-- slider direction -->
-    <br>
-    <input type="range" id="slider-direction" name="volume" min="-45" max="45" step="1" value="0">
-    <label id="angle" for="volume">Direction</label>
-
-    <!-- this link is magically provided by socket.io -->
+    <!-- Footer-->
+    <footer class="py-5 bg-dark">
+        <div class="container">
+            <p class="m-0 text-center text-white">AutoMobile 2022</p>
+        </div>
+    </footer>
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS-->
     <script src="/socket.io/socket.io.js"></script>
-
     <script src="index.js"></script>
-
 </body>
 
 </html>
