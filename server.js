@@ -5,81 +5,52 @@ const
 const {
     exec
 } = require("child_process");
+const https = require('https');
+const fs = require("fs");
+const voiture = require("./addon/build/Release/teslawish.node")
+const { StreamCamera, Codec, Flip, SensorMode,StillCamera } = require('pi-camera-connect');
 
-const { StreamCamera, Codec, Flip, SensorMode } = require('pi-camera-connect');
+voiture.init();
+// const streamCamera = new StreamCamera({
+//     codec: Codec.MJPEG,
+//     flip: Flip.Both,
+//     sensorMode: SensorMode.Mode6
+// });
 
-const streamCamera = new StreamCamera({
-    codec: Codec.MJPEG,
-    flip: Flip.Vertical,
-    sensorMode: SensorMode.Mode6
-});
+// async function cameraStartCapture() {
+//     await streamCamera.startCapture();
+// }
 
-
-async function cameraStartCapture() {
-    await streamCamera.startCapture();
+const avancerVoiture = (millis)=>{
+    voiture.avancer(20);
+    setTimeout(voiture.arreter, millis);
 }
 
-
-//fonction qui lance la commaned avancer 
-function avancerVoiture(millis) {
-    console.log(`avancer la voiture pendant ${millis} milli-secondes`);
-    exec(`avancer ${parseInt(millis)}`, (error, stdout, stderr) => {
-        if (error) {
-            console.log(`error: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.log(`stderr: ${stderr}`);
-            return;
-        }
-        console.log(`stdout: ${stdout}`);
-    });
+const reculerVoiture = (millis)=>{
+    voiture.reculer(millis);
+    setTimeout(voiture.arreter, millis);
 }
 
-function reculerVoiture(millis) {
-    console.log(`reculer la voiture pendant ${millis} milli-secondes`);
-    exec(`reculer ${parseInt(millis)}`, (error, stdout, stderr) => {
-        if (error) {
-            console.log(`error: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.log(`stderr: ${stderr}`);
-            return;
-        }
-        console.log(`stdout: ${stdout}`);
-    });
+const directionVoiture = (angle)=>{
+    voiture.direction(parseInt(angle));
 }
-
-function directionVoiture(angle) {
-    console.log(`oriente  la direction a ${angle} degrès `);
-    exec(`direction ${parseInt(angle)}`, (error, stdout, stderr) => {
-        if (error) {
-            console.log(`error: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.log(`stderr: ${stderr}`);
-            return;
-        }
-        console.log(`stdout: ${stdout}`);
-    });
+const stopVoiture = ()=>{
+    voiture.arreter();
 }
-
 
 const SERVER_PORT = 3000;
 // create a new express app
 const app = express();
 // create http server and wrap the express app
-const server = http.createServer(app);
+let credentials = {
+    key: fs.readFileSync("./credentials/key.pem", "utf-8"),
+    cert: fs.readFileSync("./credentials/cert.pem", "utf-8")
+};
+const server = https.createServer(credentials, app);
 const io = socketio(server);
 
 let nextVisitorNumber = 1;
 const onlineClients = new Set();
-
-function generateRandomNumber() {
-    return (Math.floor(Math.random() * 1000)).toString();
-}
 
 function onNewWebsocketConnection(socket) {
     console.info(`Socket ${socket.id} has connected.`);
@@ -90,7 +61,6 @@ function onNewWebsocketConnection(socket) {
         console.info(`Socket ${socket.id} has disconnected.`);
     });
 
-    // echoes on the terminal every "hello" message this socket sends
     socket.on("hello", helloMsg => console.info(`Socket ${socket.id} says: "${helloMsg}"`));
 
     // will send a message only to this socket (different than using `io.emit()`, which would broadcast it)
@@ -109,16 +79,16 @@ function onNewWebsocketConnection(socket) {
         io.emit("etat", `La voiture oriente ses roues à ${parseInt(msg)} degrès`);
         io.emit("direction", msg);
     });
-    streamCamera.on('frame', (data) => {
-        io.emit('pi-video-stream', "data:image/jpeg;base64," + data.toString("base64"));
+    socket.on("stop",()=>{
+        stopVoiture();
+        io.emit("etat","La voiture s'arrete");
     });
+    // streamCamera.on('frame', (data) => {
+    //     io.emit('pi-video-stream', "data:image/jpeg;base64," + data.toString("base64"));
+    // });
 }
 
 function startServer() {
-
-    // example on how to serve a simple API
-    app.get("/random", (req, res) => res.send(generateRandomNumber()));
-
     // example on how to serve static files from a given folder
     app.use(express.static("public"));
 
@@ -130,10 +100,14 @@ function startServer() {
     // will send one message per second to all its clients
     let secondsSinceServerStarted = 0;
 
-    cameraStartCapture().then(() => {
-        console.log('Camera is now capturing');
-    });
-
+    // cameraStartCapture().then(() => {
+    //     console.log('Camera is now capturing');
+    // });
+    // setInterval(()=>{
+    //     streamCamera.takeImage().then((photo)=>{
+    //         io.emit('pi-video-stream', "data:image/jpeg;base64," + photo.toString("base64"));
+    //     });
+    // },60);
     setInterval(() => {
         secondsSinceServerStarted++;
         io.emit("online", onlineClients.size);

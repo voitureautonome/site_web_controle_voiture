@@ -1,4 +1,18 @@
+var haveEvents = 'GamepadEvent' in window;
+var haveWebkitEvents = 'WebKitGamepadEvent' in window;
+var controllers = {};
+const car = {
+  avancer:false,
+  reculer:false,
+  stopped:true,
+  heading:0
+}
+
 const socket = io();
+
+function scaleBetween(unscaledNum, minAllowed, maxAllowed, min, max) {
+  return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
+}
 
 async function ajax(url) {
     return new Promise((resolve, reject) => {
@@ -45,12 +59,38 @@ async function main() {
     });
     socket.on("direction", angle => {
         sliderDirection.value = angle;
+        console.log("update");
         labelDirection.innerText = `Angle : ${angle} degrès`;
     });
     const imgView = document.getElementById('play');
-    socket.on('pi-video-stream', (data, res) => {
-        imgView.src=data;
-    });
+    // socket.on('pi-video-stream', (data, res) => {
+    //     imgView.src=data;
+    // });
 }
-
+function gamepadHandler() {
+  if (typeof controllers[0] === 'undefined') return;
+  if(controllers[0].buttons[7].pressed && !car.avancer){
+    socket.emit("avancer","infinity");
+    car.avancer=true;
+    car.reculer=false;
+    car.stopped=false;
+  }else if(controllers[0].buttons[6].pressed && !car.reculer){
+    socket.emit("reculer", "infinity")
+    car.reculer=true;
+    car.avancer=false;
+    car.stopped=false;
+  }else if(!car.stopped){
+    socket.emit("stop");
+    car.stopped=true;
+    car.avancer=false;
+    car.reculer=false;
+  }
+  const angle = scaleBetween(controllers[0].axes[0],-45,45,-1,-511)
+  if(Math.abs(car.heading-angle)>0.5)
+    socket.emit("direction", angle);
+}
+setInterval(gamepadHandler,16);
+setInterval(()=>{
+  controllers = navigator.getGamepads();
+},1000);
 main();

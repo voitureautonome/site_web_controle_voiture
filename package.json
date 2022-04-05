@@ -13,5 +13,9 @@
     "express": "^4.16.3",
     "pi-camera-connect": "^0.3.4",
     "socket.io": "^4.4.1"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.6",
+    "utf-8-validate": "^5.0.8"
   }
 }
